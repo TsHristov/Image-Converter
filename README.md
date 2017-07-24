@@ -1,2 +1,3 @@
 # Image-Converter
-# TO-DO: Add detailed description of the project.
+
+![Alt text](/home/tvsetan/Code/Image-Converter/save.ppm?raw=false "grayscale")
