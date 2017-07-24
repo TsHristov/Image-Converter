@@ -1,0 +1,14 @@
+/home/tvsetan/Desktop/Code/Image-Converter/Image-Converter/Project/Project.cpp: In function ‘char* DetermineHeader(char*)’:
+/home/tvsetan/Desktop/Code/Image-Converter/Image-Converter/Project/Project.cpp:11:7: warning: address of local variable ‘header’ returned [-Wreturn-local-addr]
+  char header[10];
+       ^
+/home/tvsetan/Desktop/Code/Image-Converter/Image-Converter/Project/Project.cpp: In function ‘int main()’:
+/home/tvsetan/Desktop/Code/Image-Converter/Image-Converter/Project/Project.cpp:20:21: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+  { char* fileName = "sines.ascii.ppm";
+                     ^
+/home/tvsetan/Desktop/Code/Image-Converter/Image-Converter/Project/Project.cpp:23:26: error: ‘strcmp’ was not declared in this scope
+  if (!strcmp(header, "P1") || !strcmp(header, "P4"))
+                          ^
+/home/tvsetan/Desktop/Code/Image-Converter/Image-Converter/Project/Project.cpp:60:22: error: ‘_CrtDumpMemoryLeaks’ was not declared in this scope
+  _CrtDumpMemoryLeaks();
+                      ^
