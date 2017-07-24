@@ -3,60 +3,68 @@
 #include "PGM.h"
 #include <fstream>
 #include <iostream>
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
+#include <string.h>
+using namespace std;
 
-char* DetermineHeader(char* arg)
+char* DetermineHeader(char* file_name)
 {
-	char header[10];
-	ifstream f(arg);
-	f >> header;
-	cout << header << endl;
-	return header;
+  static char file_header[10];
+  ifstream image(file_name);
+  if(image.is_open())
+  {
+    image >> file_header;
+    cout << file_header << endl;
+  }
+  else
+  {
+    //TO-DO: Throw Exception
+    cout << "Problem opening the file: " << file_name << "\n";
+  }
+  return file_header;
 }
 
-int main()
+void PrintUsage()
 {
-	{ char* fileName = "sines.ascii.ppm";
-	char* header = DetermineHeader(fileName);
-	Image* file = NULL;
-	if (!strcmp(header, "P1") || !strcmp(header, "P4"))
-	{
-		cout << "No transformations are availabe for the PBM format" << endl;
-		cout << "A histogram may only be provided" << endl;
-	}
-	else if (!strcmp(header, "P2") || !strcmp(header, "P5"))
-	{
-		file = new PGM(fileName);
-	}
-	else if (!strcmp(header, "P3") || !strcmp(header, "P6"))
-	{
-		file = new PPM(fileName);
-	}
-	if (file)
-	{
-		//if(command == Grayscale)
-		/*{
+	cout << " Options available:\n";
+	cout << " --grayscale\n";
+	cout << " --monochrome\n";
+	cout << " --histogram\n";
+}
+
+int main(int argc, char *argv[])
+{
+  char* file_name = argv[1];
+  char* header = DetermineHeader(file_name);
+  Image* file = NULL;
+  if (!strcmp(header, "P1") || !strcmp(header, "P4"))
+  {
+    cout << "No transformations are availabe for the PBM format" << endl;
+    cout << "A histogram may only be provided" << endl;
+  }
+  else if (!strcmp(header, "P2") || !strcmp(header, "P5"))
+  {
+    file = new PGM(file_name);
+  }
+  else if (!strcmp(header, "P3") || !strcmp(header, "P6"))
+  {
+    file = new PPM(file_name);
+  }
+  if (file)
+  {
+    if(!strcmp(argv[2],"--grayscale"))
+		{
 			file->Grayscale();
-			}
-			else if (command == monochrome)
-			{
+			file->Save();
+		}
+
+    if(!strcmp(argv[2],"--monochrome"))
+		{
 			file->Monochrome();
-			}
-			else if (command == histogram)
-			{
-			file->Histogram();
-			}*/
+			file->Save();
+		}
 
+    delete file;
+  }
 
-		file->Histogram();
-		//file->Grayscale();
-		//file->Monochrome();
-		//file->Save();
-
-		delete file;
-	} }
-
-	_CrtDumpMemoryLeaks();
-	return 0;
+  return 0;
 }

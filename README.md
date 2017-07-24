@@ -1,2 +1,2 @@
 # Image-Converter
-Project from my Object Oriented Programming (OOP) course at university
+# TO-DO: Add detailed description of the project.

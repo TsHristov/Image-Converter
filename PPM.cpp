@@ -3,7 +3,7 @@
 #include "Manipulate.h"
 #include "AsciiWriter.h"
 #include <fstream>
-
+#include <string.h>
 
 PPM::PPM()
 {

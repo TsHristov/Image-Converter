@@ -3,6 +3,7 @@
 #include "BinaryWriter.h"
 #include "AsciiWriter.h"
 #include <fstream>
+#include <string.h>
 
 
 PGM::PGM()
