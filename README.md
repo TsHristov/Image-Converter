@@ -1,3 +1,3 @@
 # Image-Converter
 
-![Alt text](/home/tvsetan/Code/Image-Converter/save.ppm?raw=false "grayscale")
+![Alt text](/home/tvsetan/Code/Image-Converter/Samples/save.ppm?raw=false "grayscale")
