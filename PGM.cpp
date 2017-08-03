@@ -6,13 +6,11 @@
 
 PGM::~PGM()
 {
-	for (int index = 0; index < height; ++index)
+	for (int i = 0; i < height; ++i)
 	{
-		delete[] pixels[index];
+		delete[] pixels[i];
 	}
 	delete[] pixels;
-
-	cout << "PGM::~PGM()" << endl;
 }
 
 PGM& PGM::operator=(const PGM& other)
@@ -42,20 +40,12 @@ PGM& PGM::operator=(const PGM& other)
 	return *this;
 }
 
-
 PGM::PGM(char* fileName): Image(fileName)
 {
 	this->fileName = fileName;
 	ReadHeader();
 	this->pixels = ReadPixels();
-	cout << "PGM::PGM(char* fileName)" << endl;
 }
-
-streampos PGM::GetReadPosition() const
-{
-	return this->PositionToReadPixels;
-}
-
 
 unsigned char** PGM::ReadPixels()
 {
@@ -104,46 +94,6 @@ unsigned char** PGM::ReadPixels()
 		}
 		return pixels;
 	}
-}
-
-
-char* PGM::GetFileName() const
-{
-	return this->fileName;
-}
-
-
-char* PGM::GetHeader()
-{
-	return this->header;
-}
-
-
-int PGM::GetWidth() const
-{
-	return this->width;
-}
-
-int PGM::GetHelpWidth() const
-{
-	return this->help;
-}
-
-
-int PGM::GetHeight() const
-{
-	return this->height;
-}
-
-
-int PGM::GetMaxValue() const
-{
-	return this->max_value;
-}
-
-unsigned char** PGM::GetPixels() const
-{
-	return this->pixels;
 }
 
 void PGM::Save()
