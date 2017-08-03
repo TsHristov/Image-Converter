@@ -1,19 +1,8 @@
 #include "PGM.h"
-#include "Manipulate.h"
 #include "BinaryWriter.h"
 #include "AsciiWriter.h"
 #include <fstream>
 #include <string.h>
-
-
-PGM::PGM()
-{
-	this->width = 0;
-	this->height = 0;
-	this->max_value = 0;
-	cout << "PGM::PGM():" << endl;
-}
-
 
 PGM::~PGM()
 {
@@ -25,7 +14,6 @@ PGM::~PGM()
 
 	cout << "PGM::~PGM()" << endl;
 }
-
 
 PGM& PGM::operator=(const PGM& other)
 {
@@ -55,99 +43,13 @@ PGM& PGM::operator=(const PGM& other)
 }
 
 
-PGM::PGM(char* fileName) :Image(fileName)
+PGM::PGM(char* fileName): Image(fileName)
 {
 	this->fileName = fileName;
 	ReadHeader();
 	this->pixels = ReadPixels();
 	cout << "PGM::PGM(char* fileName)" << endl;
 }
-
-void PGM::ReadHeader()
-{
-	ifstream file(fileName);
-	if (file.is_open())
-	{
-		int count = 0;
-		while (count < 4)
-		{
-			if (count == 0)
-			{
-				char c;
-				streampos position = file.tellg();
-				file.get(c);
-				if (c == '#')
-				{
-					char comment[100];
-					file.getline(comment, 100, '\n');
-				}
-				else
-				{
-					file.seekg(position);
-					file >> header;
-
-				}
-			}
-			else if (count == 1)
-			{
-				char c;
-				streampos position = file.tellg();
-				file.get(c);
-				if (c == '#' || !IsNumber(c))
-				{
-					char comment[100];
-					file.getline(comment, 100, '\n');
-					file >> width;
-				}
-				else
-				{
-					file.seekg(position);
-					file >> width;
-				}
-			}
-			else if (count == 2)
-			{
-				char c;
-				streampos position = file.tellg();
-				file.get(c);
-				if (c == ' ')
-				{
-					position = file.tellg();
-					file >> height;
-				}
-				if (c == '#')
-				{
-					char comment[100];
-					file.getline(comment, 100, ' ');
-					continue;
-				}
-			}
-			else if (count == 3)
-			{
-				char c;
-				streampos position = file.tellg();
-				file.get(c);
-				if (c == '#')
-				{
-					char comment[100];
-					file.getline(comment, 100, '\n');
-					file >> max_value;
-					continue;
-				}
-				else if (!IsNumber(c))
-				{
-					file >> max_value;
-				}
-			}
-			count += 1;
-		}
-		char a;
-		file.get(a);
-		PositionToReadPixels = file.tellg();
-		PositionToReadPixels -= 4;
-	}
-}
-
 
 streampos PGM::GetReadPosition() const
 {
@@ -248,33 +150,12 @@ void PGM::Save()
 {
 	if (!strcmp(header, "P2"))
 	{
-		AsciiWriter obj;
-		obj.Save(*this);
+		AsciiWriter writer;
+		writer.Save(*this);
 	}
 	else if (!strcmp(header, "P5"))
 	{
-		BinaryWriter obj;
-		obj.Save(*this);
+		BinaryWriter writer;
+		writer.Save(*this);
 	}
-}
-
-/*
-*	Demo - needs to be done
-*/
-void PGM::Histogram()
-{
-	cout << "There is no histogram opiton for grayscale image...yet" << endl;
-	/*Manipulate obj;
-	obj.Histogram(*this);*/
-}
-
-void PGM::Monochrome()
-{
-	Manipulate obj;
-	obj.Monochrome(*this);
-}
-
-void PGM::Grayscale()
-{
-	cout << "The file is already in grayscale!" << endl;
 }
