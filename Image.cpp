@@ -3,23 +3,22 @@
 
 Image::~Image()
 {
-  cout << "Image::~Image()" << endl;
-}
-
-Image::Image(char* fileName)
-{
-  cout << "Image::Image(char* fileName)" << endl;
+  for (int i = 0; i < height; ++i)
+  {
+    delete[] pixels[i];
+  }
+  delete[] pixels;
 }
 
 void Image::ReadHeader()
 {
-  ifstream file(fileName);
+  ifstream file(file_name);
   if (file.is_open())
   {
-    int count = 0;
-    while (count < 4)
+    int counter = 0;
+    while (counter < 4)
     {
-      if (count == 0)
+      if (counter == 0)
       {
         char c;
         streampos position = file.tellg();
@@ -33,10 +32,9 @@ void Image::ReadHeader()
         {
           file.seekg(position);
           file >> header;
-
         }
       }
-      else if (count == 1)
+      else if (counter == 1)
       {
         char c;
         streampos position = file.tellg();
@@ -53,7 +51,7 @@ void Image::ReadHeader()
           file >> width;
         }
       }
-      else if (count == 2)
+      else if (counter == 2)
       {
         char c;
         streampos position = file.tellg();
@@ -70,7 +68,7 @@ void Image::ReadHeader()
           continue;
         }
       }
-      else if (count == 3)
+      else if (counter == 3)
       {
         char c;
         streampos position = file.tellg();
@@ -87,59 +85,69 @@ void Image::ReadHeader()
           file >> max_value;
         }
       }
-      count += 1;
+      counter += 1;
     }
     char a;
     file.get(a);
-    PositionToReadPixels = file.tellg();
-    PositionToReadPixels -= 4;
+    read_position = file.tellg();
+    read_position -= 4;
   }
 }
 
 void Image::Grayscale()
 {
-  for (size_t row = 0; row < this->height; ++row)
+  for (int row = 0; row < height; ++row)
   {
-    int counter = 1;
-    unsigned char Red, Green, Blue;
-    size_t red, green, blue;
-    for (size_t col = 0; col < this->help; ++col)
+    // The counter marks the RGB colors:
+    // 1: Red, 2: Green, 3: Blue
+    int counter = 0;
+    unsigned char red, green, blue;
+    size_t red_index, green_index, blue_index;
+    for (int col = 0; col < help_width; ++col)
     {
+      counter += 1;
+      // Color red
       if (counter == 1)
       {
-        red = col;
-        Red = this->pixels[row][col];
+        red_index = col;
+        red = pixels[row][col];
       }
+      // Color green
       else if (counter == 2)
       {
-        green = col;
-        Green = this->pixels[row][col];
+        green_index = col;
+        green = pixels[row][col];
       }
+      // Color blue
       else if (counter == 3)
       {
-        blue = col;
-        Blue = this->pixels[row][col];
-        unsigned char Gray = Red * 0.3 + Green * 0.59 + Blue * 0.11;
-        this->pixels[row][red]   = Gray;
-        this->pixels[row][green] = Gray;
-        this->pixels[row][blue]  = Gray;
+        blue_index = col;
+        blue = pixels[row][col];
+        // Algorithm for grayscale conversion used from:
+        // http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
+        unsigned char gray = red * 0.3 + green * 0.59 + blue * 0.11;
+        pixels[row][red_index]   = gray;
+        pixels[row][green_index] = gray;
+        pixels[row][blue_index]  = gray;
+        // The RGB triplet is constructed,
+        // go to the next one
         counter = 0;
       }
-      counter += 1;
     }
   }
+  this->Save();
 }
 
 void Image::Monochrome()
 {
-  for (size_t i = 0; i < this->height; ++i)
+  for (int i = 0; i < this->height; ++i)
   {
-    for (size_t j = 0; j < this->help; ++j)
+    for (int j = 0; j < this->help_width; ++j)
     {
-      this->pixels[i][j] = (unsigned)this->pixels[i][j];
-      if (this->pixels[i][j] > this->max_value / 2)
+      // this->pixels[i][j] = (unsigned)this->pixels[i][j];
+      if((unsigned)this->pixels[i][j] > this->max_value / 2)
       {
-        this->pixels[i][j] = this->max_value;
+        this->pixels[i][j] = (unsigned char)this->max_value;
       }
       else
       {
@@ -147,20 +155,19 @@ void Image::Monochrome()
       }
     }
   }
+  this->Save();
 }
 
+// Currently works for green channel
 void Image::Histogram()
 {
-  //WORKS FOR GREEN!
-  /*
-  * colour pixel value from 0 to 255
-  */
-  cout << "width=" << width << endl;
-  cout << "height=" << height << endl;
-  const int size = 256;
-  int histogram[size] = { 0, };
+  cout << "width="  << width  << "\n";
+  cout << "height=" << height << "\n";
+  const int SIZE = 256;
+  int histogram[SIZE] = { 0, };
   for (int row = 0; row < height; ++row)
   {
+    // The counter marks the RGB colors
     int counter = 1;
     int red, green, blue;
     for (int col = 0; col < width; ++col)
@@ -170,48 +177,43 @@ void Image::Histogram()
       else if (counter == 3)
       {
         blue = col;
-        int color = pixels[row][green]; // change here for color
+        int color = pixels[row][green];
         ++histogram[color];
         counter = 0;
       }
       counter += 1;
     }
   }
-
-  /*
-  *  Calculates the percents per concrete colour
-  */
-  double percents[size];
+  // Calculates the percents per concrete colour
+  double percents[SIZE];
   double count_of_pixels = height * width;
-  cout << "Count of pixels:" << count_of_pixels << endl;
-  for (size_t index = 0; index < size; ++index)
+  cout << "Count of pixels: " << count_of_pixels << "\n";
+  for (int i = 0; i < SIZE; ++i)
   {
-    percents[index] = (histogram[index] * 100) / count_of_pixels;
-    percents[index] = (int)percents[index];
+    percents[i] = (histogram[i] * 100) / count_of_pixels;
+    percents[i] = (int)percents[i];
   }
+  // Saves the histogram in a file - P3 ASCII PPM
+  const char * HEADER = "P3";
+  const int HEIGHT    = 100;
+  const int WIDTH     = 256;
+  const int MAX_VALUE = 255;
 
-  /*
-  *  Saves the histogram in a file - P3 ASCII PPM
-  */
-  const char* header = "P3";
-  const int height = 100;
-  const int width = 256;
-  const int max_value = 255;
-
-  int arr[height][width];
+  int arr[HEIGHT][WIDTH];
 
   ofstream hist("histogram.ppm");
-  hist << header << '\n';
+  hist << HEADER << '\n';
   hist << 255 << '\n';
-  hist << height << '\n';
-  hist << max_value << '\n';
+  hist << HEIGHT << '\n';
+  hist << MAX_VALUE << '\n';
 
   int red, green, blue, counter;
   int temp;
   for (int row = 0; row < height; ++row)
   {
     counter = 1;
-    temp = row;//99 - row;
+    // 99 - row
+    temp = row;
     for (int col = 0; col < width; ++col)
     {
       if (temp <= percents[col])
@@ -230,9 +232,9 @@ void Image::Histogram()
         {
           blue = col;
           arr[temp][col] = 0;
-          hist << arr[temp][red] << ' ';
+          hist << arr[temp][red]   << ' ';
           hist << arr[temp][green] << ' ';
-          hist << arr[temp][blue] << ' ';
+          hist << arr[temp][blue]  << ' ';
           counter = 0;
         }
       }
@@ -252,9 +254,9 @@ void Image::Histogram()
         {
           blue = col;
           arr[temp][blue] = 255;
-          hist << arr[temp][red] << ' ';
+          hist << arr[temp][red]   << ' ';
           hist << arr[temp][green] << ' ';
-          hist << arr[temp][blue] << ' ';
+          hist << arr[temp][blue]  << ' ';
           counter = 0;
         }
       }

@@ -1,9 +1,10 @@
 #pragma once
 #include "Image.h"
+#include <string.h>
 #include <fstream>
 using namespace std;
 class BinaryWriter
 {
 public:
-	void Save(Image&) const;
+  void SaveImage(const Image& image) const;
 };
